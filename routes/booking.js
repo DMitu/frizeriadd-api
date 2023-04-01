@@ -31,6 +31,7 @@ const sendReminder = async (bookingData) => {
 // Create a new booking
 router.post("/add", async (req, res) => {
   const { customerName, customerPhone, service, date, time} = req.body;
+  console.log("Request body:", req.body);
 
   const newBooking = new Booking({
     customerName,
