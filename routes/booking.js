@@ -1,10 +1,13 @@
 const router = require("express").Router();
 const Booking = require("../models/booking.model");
-const twilio = require("twilio");
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+const { Vonage } = require('@vonage/server-sdk')
+const from = "Vonage APIs"
+const to = "40729179755"
+const text = 'A text message sent using the Vonage SMS API'
+const vonage = new Vonage({
+  apiKey: "b2f83dc4",
+  apiSecret: "mNHMxMamMrG0rdaq"
+})
 const cron = require('node-cron');
 
 
@@ -22,12 +25,14 @@ const sendReminder = async (bookingData) => {
   const { customerPhone, customerName, service, date, time } = bookingData;
 
   // Send SMS reminder to the customer
-  await client.messages.create({
-    to: customerPhone,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    body: `Salut, ${customerName}. Iti reamintesc de programarea ta pentru ${service} la ora ${time}.`,
-  });
+  
 };
+async function sendSMS() {
+  await vonage.sms.send({to, from, text})
+      .then(resp => { console.log('Message sent successfully'); console.log(resp); })
+      .catch(err => { console.log('There was an error sending the messages.'); console.error(err); });
+}
+
 
 // Create a new booking
 router.post("/add", async (req, res) => {
@@ -45,38 +50,10 @@ router.post("/add", async (req, res) => {
   try {
     const savedBooking = await newBooking.save();
     
+    sendSMS();
+    
 
-    // Send SMS notification to the customer
-    await client.messages.create({
-      to: customerPhone,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      body: `Programarea ta pentru ${service} in data de: ${date} la ora ${time} A fost creata cu succes. Ne vedem curand :)`,
-      
-    })
-    .then(message => console.log(message.sid))
-    .done();
-
-    // Send SMS notification to the owner
-    await client.messages.create({
-      to: process.env.OWNER_PHONE_NUMBER,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      body: `PROGRAMARE NOUA! Nume: ${customerName} pentru ${service} in data de : ${date} la ora: ${time}.`,
-    })
-    .then(message => console.log(message.sid))
-    .done();
-
-    // Schedule the reminder 2 hours before the booking
-    const reminderDate = new Date(date);
-    reminderDate.setHours(reminderDate.getHours() - 2);
-    const reminderCronTime = `${reminderDate.getMinutes()} ${reminderDate.getHours()} ${reminderDate.getDate()} ${reminderDate.getMonth()+1} *`;
-
-    cron.schedule(reminderCronTime, () => {
-      console.log('Sending reminder:', { customerPhone, customerName, service, date, time });
-      sendReminder({ customerPhone, customerName, service, date, time });
-    });
-
-    await sendReminder({ customerPhone, customerName, service, date, time });
-
+    
     res.json(savedBooking);
   } catch (err) {
     res.status(500).json("Error: " + err);
