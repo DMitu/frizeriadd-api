@@ -9,7 +9,6 @@ const bookingSchema = new Schema(
     service: { type: String, required: true },
     date: { type: Date, required: true },
     time: { type: String, required: true },
-    status: { type: String, required: true },
     reminderSent: { type: Boolean, default: false },
   },
   {
