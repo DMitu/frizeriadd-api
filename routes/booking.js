@@ -1,9 +1,7 @@
 const router = require("express").Router();
 const Booking = require("../models/booking.model");
 const { Vonage } = require('@vonage/server-sdk')
-const from = "Vonage APIs"
-const to = "40729179755"
-const text = 'A text message sent using the Vonage SMS API'
+
 const vonage = new Vonage({
   apiKey: "b2f83dc4",
   apiSecret: "mNHMxMamMrG0rdaq"
@@ -27,7 +25,7 @@ const sendReminder = async (bookingData) => {
   // Send SMS reminder to the customer
   
 };
-async function sendSMS() {
+async function sendSMS(to, from, text) {
   await vonage.sms.send({to, from, text})
       .then(resp => { console.log('Message sent successfully'); console.log(resp); })
       .catch(err => { console.log('There was an error sending the messages.'); console.error(err); });
@@ -37,6 +35,7 @@ async function sendSMS() {
 // Create a new booking
 router.post("/add", async (req, res) => {
   const { customerName, customerPhone, service, date, time} = req.body;
+  
   console.log("Request body:", req.body);
 
   const newBooking = new Booking({
@@ -49,8 +48,10 @@ router.post("/add", async (req, res) => {
 
   try {
     const savedBooking = await newBooking.save();
-    
-    sendSMS();
+    const from = "Frizeria D&D"
+    const to = customerPhone;
+    const text = `Programarea ta a fost facuta cu succes pentru ${service} la data de ${date} la ora ${time}.` 
+    sendSMS(to, from, text);
     
 
     
