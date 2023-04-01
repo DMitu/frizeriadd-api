@@ -30,7 +30,7 @@ const sendReminder = async (bookingData) => {
 
 // Create a new booking
 router.post("/add", async (req, res) => {
-  const { customerName, customerPhone, service, date, time, status } = req.body;
+  const { customerName, customerPhone, service, date, time} = req.body;
 
   const newBooking = new Booking({
     customerName,
@@ -38,11 +38,11 @@ router.post("/add", async (req, res) => {
     service,
     date,
     time,
-    status,
   });
 
   try {
     const savedBooking = await newBooking.save();
+    
 
     // Send SMS notification to the customer
     await client.messages.create({
