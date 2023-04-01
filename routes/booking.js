@@ -7,6 +7,7 @@ const client = twilio(
 );
 const cron = require('node-cron');
 
+
 // Get all bookings
 router.get("/", async (req, res) => {
   try {
@@ -50,14 +51,19 @@ router.post("/add", async (req, res) => {
       to: customerPhone,
       from: process.env.TWILIO_PHONE_NUMBER,
       body: `Programarea ta pentru ${service} in data de: ${date} la ora ${time} A fost creata cu succes. Ne vedem curand :)`,
-    });
+      
+    })
+    .then(message => console.log(message.sid))
+    .done();
 
     // Send SMS notification to the owner
     await client.messages.create({
       to: process.env.OWNER_PHONE_NUMBER,
       from: process.env.TWILIO_PHONE_NUMBER,
       body: `PROGRAMARE NOUA! Nume: ${customerName} pentru ${service} in data de : ${date} la ora: ${time}.`,
-    });
+    })
+    .then(message => console.log(message.sid))
+    .done();
 
     // Schedule the reminder 2 hours before the booking
     const reminderDate = new Date(date);
