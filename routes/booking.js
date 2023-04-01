@@ -37,7 +37,7 @@ router.post("/add", async (req, res) => {
     customerPhone,
     service,
     date,
-    time,
+    time
   });
 
   try {
