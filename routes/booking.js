@@ -2,10 +2,7 @@ const router = require("express").Router();
 const Booking = require("../models/booking.model");
 const { Vonage } = require('@vonage/server-sdk')
 
-const vonage = new Vonage({
-  apiKey: "b2f83dc4",
-  apiSecret: "mNHMxMamMrG0rdaq"
-})
+
 const cron = require('node-cron');
 
 
